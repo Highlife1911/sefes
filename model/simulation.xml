@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+
+// THIEFS
+const int ROBOTS = 3; // total number of robots
+typedef int[0,ROBOTS-1] robotid_t;
+chan enter_lane[ROBOTS];
+
+// ROOMS
+const int N = 3;         // # rooms
+typedef int[0,N-1] id_t;
+chan enter_room[N], leave_room[N];
+chan enter_loop[N], leave_loop[N];
+
+// LANES
+const int M = 2; // lanes per room
+typedef int[0,(M*N)-1] laneid_t;
+chan reserve_lane[M*N], leave_lane[N];
+
+// MASTER
+chan approve_lane;
+laneid_t drive_to;</declaration>
+	<template>
+		<name x="5" y="5">Room</name>
+		<parameter>const id_t id</parameter>
+		<declaration>// Place local declarations here.
+int loop_counter = 0;</declaration>
+		<location id="id0" x="0" y="0" color="#00ff00">
+			<name x="-59" y="-17">Empty</name>
+			<label kind="invariant" x="-127" y="0">loop_counter&gt;=0</label>
+		</location>
+		<location id="id1" x="153" y="0" color="#0000ff">
+			<name x="170" y="-17">Occupied</name>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="25" y="187">enter_loop[id]?</label>
+			<label kind="assignment" x="25" y="170">loop_counter-=1</label>
+			<nail x="153" y="212"/>
+			<nail x="0" y="212"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="34" y="-170">leave_loop[id]?</label>
+			<label kind="assignment" x="25" y="-153">loop_counter+=1</label>
+			<nail x="0" y="-178"/>
+			<nail x="153" y="-178"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="34" y="68">leave_room[id]?</label>
+			<nail x="76" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="25" y="-85">enter_room[id]?</label>
+			<nail x="68" y="-59"/>
+		</transition>
+	</template>
+	<template>
+		<name>Lane</name>
+		<parameter>const laneid_t id</parameter>
+		<declaration>clock time;
+
+int travel_time = (id % M) * 5 + 5;
+int target_room = id / M;</declaration>
+		<location id="id2" x="0" y="0" color="#00ff00">
+			<name x="-25" y="-42">Empty</name>
+		</location>
+		<location id="id3" x="153" y="0" color="#0000ff">
+			<name x="195" y="-25">Occupied</name>
+		</location>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="guard" x="34" y="68">time&gt;=travel_time</label>
+			<label kind="synchronisation" x="34" y="85">enter_room[target_room]!</label>
+			<nail x="76" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="34" y="-76">reserve_lane[id]?</label>
+			<label kind="assignment" x="51" y="-93">time=0</label>
+			<nail x="68" y="-59"/>
+		</transition>
+	</template>
+	<template>
+		<name>Thief</name>
+		<parameter>const robotid_t id</parameter>
+		<declaration>laneid_t internal = 5;</declaration>
+		<location id="id4" x="-170" y="8">
+			<name x="-180" y="-26">pool</name>
+		</location>
+		<location id="id5" x="68" y="8">
+			<name x="58" y="-26">lane</name>
+		</location>
+		<location id="id6" x="272" y="8">
+			<name x="262" y="-26">room</name>
+		</location>
+		<location id="id7" x="501" y="8">
+			<name x="491" y="-26">loop</name>
+		</location>
+		<init ref="id4"/>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-102" y="-17">enter_lane[id]?</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id4"/>
+			<nail x="34" y="161"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<nail x="391" y="76"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<nail x="391" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="guard" x="127" y="-17">internal==4</label>
+		</transition>
+	</template>
+	<template>
+		<name>Thief_Lane</name>
+		<parameter>const robotid_t id</parameter>
+		<declaration>laneid_t internal = 5;</declaration>
+		<location id="id8" x="0" y="144">
+			<name x="-51" y="136">wait</name>
+		</location>
+		<location id="id9" x="0" y="0">
+			<name x="-10" y="-34">pool</name>
+		</location>
+		<location id="id10" x="221" y="0">
+			<name x="211" y="-34">to_lane</name>
+		</location>
+		<location id="id11" x="221" y="144">
+			<name x="246" y="136">lane</name>
+		</location>
+		<init ref="id9"/>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id9"/>
+			<label kind="guard" x="8" y="59">internal==5</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id8"/>
+			<label kind="synchronisation" x="59" y="119">enter_lane[id]!</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="229" y="68">reserve_lane[internal]!</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="68" y="-42">approve_lane?</label>
+			<label kind="assignment" x="59" y="-25">internal=drive_to</label>
+		</transition>
+	</template>
+	<template>
+		<name>Master</name>
+		<parameter>const id_t id</parameter>
+		<declaration>int take_lane = 0;
+clock reset_time;</declaration>
+		<location id="id12" x="0" y="0">
+			<name x="-42" y="-34">Ready</name>
+		</location>
+		<location id="id13" x="289" y="0">
+			<name x="289" y="-34">Waiting</name>
+		</location>
+		<init ref="id12"/>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id12"/>
+			<label kind="guard" x="93" y="195">reset_time&gt;=10</label>
+			<nail x="289" y="221"/>
+			<nail x="0" y="221"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="93" y="-51">approve_lane!</label>
+			<label kind="assignment" x="25" y="-25">drive_to=id*M+take_lane, reset_time=0</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+//Room1 = Room(0);
+//Room2 = Room(1);
+// List one or more processes to be composed into a system.
+system Room, Lane, Master, Thief, Thief_Lane;</system>
+	<queries>
+	</queries>
+</nta>
