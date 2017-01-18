@@ -1,0 +1,4 @@
+<map id="RobotinoExtension::Network" name="RobotinoExtension::Network">
+<area shape="rect" id="node2" href="$class_robotino_extension_1_1_basic_network.html" title="{RobotinoExtension::\lBasicNetwork\n|# mNetworkId\l# NetworkObjects\l# NetworkMutex\l# NetworkBuffer\l|+ BasicNetwork()\l+ ~BasicNetwork()\l+ getNetworkId()\l+ sendData()\l+ broadcastData()\l+ processEvents()\l+ RegisterNetwork()\l+ UnregisterNetwork()\l+ FindAllNetworkObjects()\l# send()\l}" alt="" coords="5,219,180,487"/>
+<area shape="rect" id="node3" href="$class_robotino_extension_1_1_network_module.html" title="{RobotinoExtension::\lNetworkModule\n||+ NetworkModule()\l+ ~NetworkModule()\l+ setCallback()\l+ setCallback()\l+ removeCallback()\l# callback()\l}" alt="" coords="23,5,162,171"/>
+</map>

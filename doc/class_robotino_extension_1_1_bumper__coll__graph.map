@@ -1,0 +1,5 @@
+<map id="RobotinoExtension::Bumper" name="RobotinoExtension::Bumper">
+<area shape="rect" id="node2" title="Represents a bumper. " alt="" coords="5,182,132,274"/>
+<area shape="rect" id="node3" title="The base class for all Robotino objects. " alt="" coords="5,5,132,97"/>
+<area shape="rect" id="node4" href="$class_robotino_extension_1_1_observer.html" title="{RobotinoExtension::\lObserver\n||+ Observer()\l+ ~Observer()\l+ setCallback()\l+ setCallback()\l+ removeCallback()\l# callback()\l}" alt="" coords="157,145,295,311"/>
+</map>

@@ -1,0 +1,8 @@
+<map id="RobotinoExtension::Navigation" name="RobotinoExtension::Navigation">
+<area shape="rect" id="node2" href="$class_robotino_extension_1_1_observer.html" title="{RobotinoExtension::\lObserver\n||+ Observer()\l+ ~Observer()\l+ setCallback()\l+ setCallback()\l+ removeCallback()\l# callback()\l}" alt="" coords="5,147,144,312"/>
+<area shape="rect" id="node3" href="$class_robotino_extension_1_1_north_star.html" title="GPS Positioning sensor. " alt="" coords="123,457,261,593"/>
+<area shape="rect" id="node4" title="Represents the NorthStar tracking device. " alt="" coords="169,183,295,275"/>
+<area shape="rect" id="node5" title="The base class for all Robotino objects. " alt="" coords="258,5,385,97"/>
+<area shape="rect" id="node7" title="Calculates motor velocities for the omni drive. " alt="" coords="319,183,446,275"/>
+<area shape="rect" id="node6" href="$class_robotino_extension_1_1_drive.html" title="Movement class with basic api2 abstraction. " alt="" coords="289,361,468,688"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="RobotinoExtension::DistanceSensor" name="RobotinoExtension::DistanceSensor">
+<area shape="rect" id="node2" title="Represents an IR distance sensor. " alt="" coords="5,183,159,275"/>
+<area shape="rect" id="node3" title="The base class for all Robotino objects. " alt="" coords="19,5,145,97"/>
+<area shape="rect" id="node4" href="$class_robotino_extension_1_1_observer.html" title="{RobotinoExtension::\lObserver\n||+ Observer()\l+ ~Observer()\l+ setCallback()\l+ setCallback()\l+ removeCallback()\l# callback()\l}" alt="" coords="183,147,322,312"/>
+<area shape="rect" id="node5" href="$class_robotino_extension_1_1_distance_sensor_readings.html" title="The sensor readings encapsulated in a class. " alt="" coords="347,147,543,312"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="RobotinoExtension::Drive" name="RobotinoExtension::Drive">
+<area shape="rect" id="node2" title="Calculates motor velocities for the omni drive. " alt="" coords="31,145,158,237"/>
+<area shape="rect" id="node3" title="The base class for all Robotino objects. " alt="" coords="31,5,158,97"/>
+</map>

@@ -1,0 +1,17 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" title="The base class for all Robotino objects. " alt="" coords="5,201,132,243"/>
+<area shape="rect" id="node2" title="Represents a bumper. " alt="" coords="193,267,320,308"/>
+<area shape="rect" id="node4" title="Represents an IR distance sensor. " alt="" coords="180,332,333,373"/>
+<area shape="rect" id="node6" title="Access to Robotino&#39;s (optional) laser rangefinder. " alt="" coords="189,397,324,439"/>
+<area shape="rect" id="node8" title="Represents the NorthStar tracking device. " alt="" coords="193,71,320,112"/>
+<area shape="rect" id="node10" title="Calculates motor velocities for the omni drive. " alt="" coords="193,5,320,47"/>
+<area shape="rect" id="node12" title="Represents the power management of Robotino. " alt="" coords="186,136,327,177"/>
+<area shape="rect" id="node3" href="$class_robotino_extension_1_1_bumper.html" title="Collision detection system that gets informed about the Bumper status. " alt="" coords="381,267,520,308"/>
+<area shape="rect" id="node5" href="$class_robotino_extension_1_1_distance_sensor.html" title="A low range distance sensor arranged as a circle in an interval of 40°. " alt="" coords="381,332,520,373"/>
+<area shape="rect" id="node7" href="$class_robotino_extension_1_1_laser_sensor.html" title="The optional LaserSensor distance sensor. " alt="" coords="381,397,520,439"/>
+<area shape="rect" id="node9" href="$class_robotino_extension_1_1_north_star.html" title="GPS Positioning sensor. " alt="" coords="381,71,520,112"/>
+<area shape="rect" id="node11" href="$class_robotino_extension_1_1_drive.html" title="Movement class with basic api2 abstraction. " alt="" coords="381,5,520,47"/>
+<area shape="rect" id="node13" href="$class_robotino_extension_1_1_battery.html" title="Battery class that supplies a basic power management. " alt="" coords="381,136,520,177"/>
+<area shape="rect" id="node14" href="$class_robotino_extension_1_1_observer.html" title="RobotinoExtension::\lObserver" alt="" coords="187,201,326,243"/>
+<area shape="rect" id="node15" href="$class_robotino_extension_1_1_navigation.html" title="Navigation module that interacts with the drive and the north star. " alt="" coords="381,201,520,243"/>
+</map>

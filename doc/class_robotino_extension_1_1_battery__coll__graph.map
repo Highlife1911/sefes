@@ -1,0 +1,5 @@
+<map id="RobotinoExtension::Battery" name="RobotinoExtension::Battery">
+<area shape="rect" id="node2" title="Represents the power management of Robotino. " alt="" coords="5,182,147,274"/>
+<area shape="rect" id="node3" title="The base class for all Robotino objects. " alt="" coords="13,5,139,97"/>
+<area shape="rect" id="node4" href="$class_robotino_extension_1_1_observer.html" title="{RobotinoExtension::\lObserver\n||+ Observer()\l+ ~Observer()\l+ setCallback()\l+ setCallback()\l+ removeCallback()\l# callback()\l}" alt="" coords="171,145,309,311"/>
+</map>

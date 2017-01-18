@@ -1,0 +1,6 @@
+<map id="RobotinoExtension::LaserSensor" name="RobotinoExtension::LaserSensor">
+<area shape="rect" id="node2" title="Access to Robotino&#39;s (optional) laser rangefinder. " alt="" coords="5,191,140,283"/>
+<area shape="rect" id="node3" title="The base class for all Robotino objects. " alt="" coords="9,5,136,97"/>
+<area shape="rect" id="node4" href="$class_robotino_extension_1_1_observer.html" title="{RobotinoExtension::\lObserver\n||+ Observer()\l+ ~Observer()\l+ setCallback()\l+ setCallback()\l+ removeCallback()\l# callback()\l}" alt="" coords="165,154,303,319"/>
+<area shape="rect" id="node5" href="$class_robotino_extension_1_1_laser_sensor_readings.html" title="The sensor readings encapsulated in a class. " alt="" coords="328,147,505,327"/>
+</map>
