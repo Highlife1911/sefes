@@ -19,13 +19,31 @@ protected:
 	void initializeComponents();
 	void destroyComponents();
 
-	virtual void event() override;
+	void event() override;
+
+	void poolEvent();
+	void poolToLaneEvent();
+	void laneEvent();
+	void waitingRoomEvent();
 
 private:
 
 	RobotinoExtension::Navigation *mNavigation;
-	RobotinoExtension::NorthStar 	*mNorthStar;
-	RobotinoExtension::Drive 		*mDrive;
+	RobotinoExtension::NorthStar  *mNorthStar;
+	RobotinoExtension::Drive 	  *mDrive;
 
-	int mTarget;
+	enum states
+	{
+		state_pool,
+		state_poolToLane,
+		state_lane,
+		state_waitingRoom,
+		state_archiveRoom,
+		state_toPoolLane
+	} state;
+
+	bool isAllowedToMoveInPool;
+	int lane;
+	bool isArrived;
+	bool startedMovement;
 };

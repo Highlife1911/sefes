@@ -1,7 +1,7 @@
 #include "PositionalRobot.h"
 
 #include <iostream>
-#include <conio.h>
+#include <mutex>
 
 #include <Core/Drive.h>
 #include <Core/NorthStar.h>
@@ -9,38 +9,11 @@
 
 #include <Components/Navigation.h>
 
-using RobotinoExtension::Position;
+#include "shared.h"
 
 namespace
 {
-float randomFloat()
-{
-	const float min = -4.0f;
-	const float max = 4.0f;
-	const float dist = max - min;
 
-	int val = rand();
-
-	return (dist * static_cast<float>(val % 4096) / 4096) + min;
-}
-
-std::vector<Position> &buildList(int stops)
-{
-	static std::vector<Position> list;
-	for (int i = 0; i < stops; i++)
-	{
-		float a = randomFloat();
-		float b = randomFloat();
-
-		std::cout << "Target " << i + 1 << ": (" << a << ", " << b << ")" << std::endl;
-		list.push_back(Position(a, b));
-	}
-
-	return list;
-}
-
-const int NumberOfStops = 5;
-std::vector<Position> &TargetList = buildList(NumberOfStops);
 }
 
 PositionalRobot::PositionalRobot(const std::string &ip)
@@ -48,7 +21,6 @@ PositionalRobot::PositionalRobot(const std::string &ip)
 	, mNavigation(nullptr)
 	, mNorthStar(nullptr)
 	, mDrive(nullptr)
-	, mTarget(0)
 {
 	connect();
 	initializeComponents();
@@ -64,21 +36,111 @@ void PositionalRobot::run()
 {
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
-	int current_target = -1;
+	startedMovement = false;
+	isArrived = false;
+	isAllowedToMoveInPool = false;
+	state = state_pool;
 
-	while (isConnected() && !_kbhit())
+	while (isConnected())
 	{
 		processEvents();
 
-		if (current_target != mTarget)
+		switch (state)
 		{
-			current_target = mTarget;
-			mNavigation->driveToPosition(TargetList[mTarget], 0.5f, 0.05f);
+		case state_pool:
+			poolEvent();
+			break;
 		}
 
-		std::cout << ".";
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
 	}
+}
+
+void PositionalRobot::poolEvent()
+{
+	auto &inst = shared::instance();
+	std::lock_guard<std::mutex> lock(inst.access);
+
+	if (!isAllowedToMoveInPool)
+	{
+		if (inst.movementInPool)
+		{
+			return;
+		}
+		inst.movementInPool = true;
+		isAllowedToMoveInPool = true;
+	}
+
+	for (int i = 0; i < shared::numberOfLanes; ++i)
+	{
+		if (inst.canEnterLane[i])
+		{
+			inst.canEnterLane[i] = false;
+			state = state_poolToLane;
+			lane = i;
+			return;
+		}
+	}
+}
+
+void PositionalRobot::poolToLaneEvent()
+{
+	auto &inst = shared::instance();
+	auto &pos = inst.lanePoints[lane][0];
+
+	assert(isAllowedToMoveInPool);
+
+	if (isArrived)
+	{
+		startedMovement = false;
+		state = state_lane;
+		isArrived = false;
+
+		std::lock_guard<std::mutex> lock(inst.access);
+		isAllowedToMoveInPool = false;
+		inst.movementInPool = false;
+
+		return;
+	}
+
+	if (startedMovement)
+	{
+		return;
+	}
+
+	startedMovement = true;
+	mNavigation->driveToPosition(RobotinoExtension::Position(pos.first, pos.second), 0.5f, 1.0f);
+}
+
+void PositionalRobot::laneEvent()
+{
+	auto &inst = shared::instance();
+	auto &pos = inst.lanePoints[lane][1];
+
+	if (isArrived)
+	{
+		startedMovement = false;
+		state = state_waitingRoom;
+		isArrived = false;
+
+		std::lock_guard<std::mutex> lock(inst.access);
+		inst.canEnterLane[lane] = true;
+
+		return;
+	}
+
+	if (startedMovement)
+	{
+		return;
+	}
+
+	startedMovement = true;
+	mNavigation->driveToPosition(RobotinoExtension::Position(pos.first, pos.second), 0.5f, 1.0f);
+}
+
+void PositionalRobot::waitingRoomEvent()
+{
+	auto &inst = shared::instance();
 }
 
 void PositionalRobot::initializeComponents()
@@ -92,8 +154,7 @@ void PositionalRobot::initializeComponents()
 
 void PositionalRobot::event()
 {
-	mTarget++;
-	mTarget %= NumberOfStops;
+	isArrived = true;
 }
 
 void PositionalRobot::destroyComponents()
