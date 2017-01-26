@@ -8,6 +8,7 @@ const int ROBOTS = 1;     // total number of robots in system
 typedef int[0,ROBOTS-1] robotid_t;
 chan enter_lane[ROBOTS];
 int target_archiv[ROBOTS];
+int target_lane[ROBOTS];
 
 // LANES
 const int N = 1;         // total number of available Lanes
@@ -25,8 +26,10 @@ int heighest_id[N];
 
 // LANES
 const int M = 1; // lanes per archiv
+const int total_lanes = M*N;
 typedef int[0,(M*N)-1] laneid_t;
 chan reserve_lane[M*N], leave_lane[N];
+bool is_archivist_in_lane[total_lanes];
 
 // MASTER
 chan approve_lane;
@@ -85,9 +88,11 @@ int target_archiv = id / M;</declaration>
 		<transition>
 			<source ref="id2"/>
 			<target ref="id1"/>
-			<label kind="guard" x="25" y="68">time&gt;=travel_time</label>
+			<label kind="guard" x="0" y="68">time&gt;=travel_time &amp;&amp;
+is_archivist_in_lane[id]==true</label>
 			<label kind="synchronisation" x="-17" y="51">enter_anteroom[target_archiv]!</label>
-			<label kind="assignment" x="-68" y="85">can_enter_anteroom[target_archiv]=true</label>
+			<label kind="assignment" x="-59" y="102">can_enter_anteroom[target_archiv]=true,
+is_archivist_in_lane[id]=false</label>
 			<nail x="272" y="68"/>
 			<nail x="280" y="68"/>
 			<nail x="76" y="68"/>
@@ -118,11 +123,11 @@ int wait_id;</declaration>
 		<location id="id5" x="-144" y="-340">
 			<name x="-195" y="-348">Lane</name>
 		</location>
-		<location id="id6" x="425" y="34">
-			<name x="442" y="25">Archiv</name>
+		<location id="id6" x="493" y="34">
+			<name x="510" y="25">Archiv</name>
 		</location>
-		<location id="id7" x="425" y="-255">
-			<name x="442" y="-263">Anteroom</name>
+		<location id="id7" x="493" y="-255">
+			<name x="510" y="-263">Anteroom</name>
 		</location>
 		<init ref="id4"/>
 		<transition>
@@ -141,10 +146,10 @@ time=0</label>
 		<transition>
 			<source ref="id7"/>
 			<target ref="id6"/>
-			<label kind="guard" x="93" y="-178">is_archiv_occupied[target_archiv[id]]==false &amp;&amp; 
+			<label kind="guard" x="161" y="-178">is_archiv_occupied[target_archiv[id]]==false &amp;&amp; 
 wait_id==lowest_id[target_archiv[id]]</label>
-			<label kind="synchronisation" x="178" y="-195">leave_anteroom[target_archiv[id]]!</label>
-			<label kind="assignment" x="127" y="-144">is_archiv_occupied[target_archiv[id]]=true,
+			<label kind="synchronisation" x="246" y="-195">leave_anteroom[target_archiv[id]]!</label>
+			<label kind="assignment" x="195" y="-144">is_archiv_occupied[target_archiv[id]]=true,
 lowest_id[target_archiv[id]]=
 (lowest_id[target_archiv[id]]+1)%ROBOTS,
 time=0</label>
@@ -152,17 +157,18 @@ time=0</label>
 		<transition>
 			<source ref="id5"/>
 			<target ref="id7"/>
-			<label kind="guard" x="68" y="-340">can_enter_anteroom[target_archiv[id]]==true</label>
-			<label kind="assignment" x="68" y="-323">can_enter_anteroom[target_archiv[id]]=false,
+			<label kind="guard" x="170" y="-340">can_enter_anteroom[target_archiv[id]]==true</label>
+			<label kind="assignment" x="170" y="-323">can_enter_anteroom[target_archiv[id]]=false,
 wait_id=heighest_id[target_archiv[id]],
 heighest_id[target_archiv[id]]=
 (heighest_id[target_archiv[id]]+1)% ROBOTS</label>
-			<nail x="425" y="-340"/>
+			<nail x="493" y="-340"/>
 		</transition>
 		<transition>
 			<source ref="id4"/>
 			<target ref="id5"/>
-			<label kind="synchronisation" x="-136" y="-306">enter_lane[id]?</label>
+			<label kind="synchronisation" x="-136" y="-314">enter_lane[id]?</label>
+			<label kind="assignment" x="-136" y="-297">is_archivist_in_lane[target_lane[id]]=true</label>
 		</transition>
 	</template>
 	<template>
@@ -193,7 +199,8 @@ clock time;</declaration>
 			<target ref="id8"/>
 			<label kind="guard" x="34" y="144">time&gt;=enter_lane_time</label>
 			<label kind="synchronisation" x="59" y="127">enter_lane[id]!</label>
-			<label kind="assignment" x="17" y="161">target_archiv[id]=internal/M</label>
+			<label kind="assignment" x="17" y="161">target_archiv[id]=internal/M,
+target_lane[id]=internal</label>
 		</transition>
 		<transition>
 			<source ref="id10"/>
