@@ -61,36 +61,41 @@ void PositionalRobot::run()
 			std::cout << "Unkown State: " << state << std::endl;
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(50));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 }
 
 void PositionalRobot::poolEvent()
 {
+	access.lock();
 	auto &inst = shared::instance();
-	std::lock_guard<std::mutex> lock(access);
+	//std::lock_guard<std::mutex> lock(access);
 
 	if (!isAllowedToMoveInPool)
 	{
 		if (inst.movementInPool)
 		{
+			access.unlock();
 			return;
 		}
 		inst.movementInPool = true;
 		isAllowedToMoveInPool = true;
 	}
 
-	for (int i = 0; i < shared::numberOfLanes; ++i)
-	{
+	int i = rand() % shared::numberOfLanes;
+	//for (int i = 0; i < shared::numberOfLanes; ++i)
+	//{
 		if (inst.canEnterLane[i])
 		{
 			inst.canEnterLane[i] = false;
 			std::cout << "Robot " << mid << ": PoolToLaneEvent" << std::endl;
 			state = state_poolToLane;
 			lane = i;
+			access.unlock();
 			return;
 		}
-	}
+	//}
+	access.unlock();
 }
 
 void PositionalRobot::poolToLaneEvent()
@@ -154,7 +159,7 @@ void PositionalRobot::waitingRoomEvent()
 	if (waitingPosition == 0 && inst.isArchiveOccupied[lane] == false)
 	{
 		std::cout << "Robot " << mid << ": ArchiveRoomEvent" << std::endl;
-		std::cout << "Archive " << lane << "is now occupied" << std::endl;
+		std::cout << "Archive " << lane << " is now occupied" << std::endl;
 		inst.isArchiveOccupied[lane] = true;
 		state = state_archiveRoom;
 		inst.waitingRooms[lane].leave();
@@ -180,7 +185,7 @@ void PositionalRobot::archiveRoomEvent()
 		if (cycle > 100 && inst.canEnterToPoolLane[lane])
 		{
 			inst.canEnterToPoolLane[lane] = false;
-			std::cout << "Archive " << lane << "is now free" << std::endl;
+			std::cout << "Archive " << lane << " is now free" << std::endl;
 			inst.isArchiveOccupied[lane] = false;
 			movement.isArrived = false;
 			cycle = 0;
