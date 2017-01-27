@@ -5,6 +5,8 @@
 #include <utility>
 #include <vector>
 
+#include "waitingRoom.h"
+
 struct shared
 {
 	static const int numberOfRobots = 8;
@@ -18,6 +20,8 @@ struct shared
 		return sh;
 	}
 
+	shared();
+
 	bool canEnterLane[numberOfLanes];
 	bool canEnterToPoolLane[numberOfRooms];
 	int numberOfRobotsInWaitingRoom[numberOfRooms];
@@ -29,11 +33,9 @@ struct shared
 	std::pair<float, float> waitingRoomExit[numberOfRooms];
 	std::pair<float, float> archiveRoomExit[numberOfRooms];
 
-	std::pair<float, float> poolRoomCoordinates[4];
-
 	std::pair<float, float> startingPositions[numberOfRobots];
-
-	std::mutex access;
 	
 	bool movementInPool;
+
+	WaitingRoom waitingRooms[numberOfRooms];
 };

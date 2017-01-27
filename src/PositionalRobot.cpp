@@ -13,14 +13,17 @@
 
 namespace
 {
-
+	std::mutex access;
+	const int port = 12080;
+	const std::string ip = "127.0.0.1:";
 }
 
-PositionalRobot::PositionalRobot(const std::string &ip)
-	: Robot(ip)
+PositionalRobot::PositionalRobot(int id)
+	: Robot(ip + std::to_string(port + id))
 	, mNavigation(nullptr)
 	, mNorthStar(nullptr)
 	, mDrive(nullptr)
+	, mid(id)
 {
 	connect();
 	initializeComponents();
@@ -36,10 +39,9 @@ void PositionalRobot::run()
 {
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
-	startedMovement = false;
-	isArrived = false;
 	isAllowedToMoveInPool = false;
 	state = state_pool;
+	cycle = 0;
 
 	while (isConnected())
 	{
@@ -47,9 +49,16 @@ void PositionalRobot::run()
 
 		switch (state)
 		{
-		case state_pool:
-			poolEvent();
-			break;
+		case state_pool: poolEvent(); break;
+		case state_poolToLane: poolToLaneEvent(); break;
+		case state_lane: laneEvent(); break;
+		case state_waitingRoom: waitingRoomEvent(); break;
+		case state_archiveRoom: archiveRoomEvent(); break;
+		case state_toPoolLane: toPoolLaneEvent(); break;
+		case state_exitPoolLane: exitPoolLaneEvent(); break;
+		case state_toStartingPositon: toStartingPositonEvent(); break;
+		default:
+			std::cout << "Unkown State: " << state << std::endl;
 		}
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -59,7 +68,7 @@ void PositionalRobot::run()
 void PositionalRobot::poolEvent()
 {
 	auto &inst = shared::instance();
-	std::lock_guard<std::mutex> lock(inst.access);
+	std::lock_guard<std::mutex> lock(access);
 
 	if (!isAllowedToMoveInPool)
 	{
@@ -76,6 +85,7 @@ void PositionalRobot::poolEvent()
 		if (inst.canEnterLane[i])
 		{
 			inst.canEnterLane[i] = false;
+			std::cout << "Robot " << mid << ": PoolToLaneEvent" << std::endl;
 			state = state_poolToLane;
 			lane = i;
 			return;
@@ -86,61 +96,178 @@ void PositionalRobot::poolEvent()
 void PositionalRobot::poolToLaneEvent()
 {
 	auto &inst = shared::instance();
+	std::lock_guard<std::mutex> lock(access);
 	auto &pos = inst.lanePoints[lane][0];
 
-	assert(isAllowedToMoveInPool);
-
-	if (isArrived)
+	if (movement.isArrived)
 	{
-		startedMovement = false;
+		movement.isArrived = false;
+		std::cout << "Robot " << mid << ": LaneEvent" << std::endl;
 		state = state_lane;
-		isArrived = false;
 
-		std::lock_guard<std::mutex> lock(inst.access);
 		isAllowedToMoveInPool = false;
 		inst.movementInPool = false;
 
 		return;
 	}
 
-	if (startedMovement)
+	if (!movement.startedMovement)
 	{
-		return;
+		movement.move(mNavigation, pos);
 	}
-
-	startedMovement = true;
-	mNavigation->driveToPosition(RobotinoExtension::Position(pos.first, pos.second), 0.5f, 1.0f);
 }
 
 void PositionalRobot::laneEvent()
 {
 	auto &inst = shared::instance();
+	std::lock_guard<std::mutex> lock(access);
 	auto &pos = inst.lanePoints[lane][1];
 
-	if (isArrived)
+	if (movement.isArrived)
 	{
-		startedMovement = false;
+		movement.isArrived = false;
+		std::cout << "Robot " << mid << ": WaitingRoomEvent" << std::endl;
 		state = state_waitingRoom;
-		isArrived = false;
-
-		std::lock_guard<std::mutex> lock(inst.access);
+		waitingPosition = -1;
 		inst.canEnterLane[lane] = true;
 
 		return;
 	}
 
-	if (startedMovement)
+	if (!movement.startedMovement)
 	{
-		return;
+		movement.move(mNavigation, pos);
 	}
-
-	startedMovement = true;
-	mNavigation->driveToPosition(RobotinoExtension::Position(pos.first, pos.second), 0.5f, 1.0f);
 }
 
 void PositionalRobot::waitingRoomEvent()
 {
 	auto &inst = shared::instance();
+	std::lock_guard<std::mutex> lock(access);
+
+	if (movement.isArrived)
+	{
+		movement.isArrived = false;
+		waitingPosition = newWaitingRoomPosition;
+	}
+
+	if (waitingPosition == 0 && inst.isArchiveOccupied[lane] == false)
+	{
+		std::cout << "Robot " << mid << ": ArchiveRoomEvent" << std::endl;
+		std::cout << "Archive " << lane << "is now occupied" << std::endl;
+		inst.isArchiveOccupied[lane] = true;
+		state = state_archiveRoom;
+		inst.waitingRooms[lane].leave();
+		return;
+	}
+
+	newWaitingRoomPosition = inst.waitingRooms[lane].position(mid);
+	if (newWaitingRoomPosition != waitingPosition)
+	{
+		movement.move(mNavigation, inst.waitingRooms[lane].realPosition(newWaitingRoomPosition));
+	}
+}
+
+void PositionalRobot::archiveRoomEvent()
+{
+	auto &inst = shared::instance();
+	std::lock_guard<std::mutex> lock(access);
+	auto &pos = inst.archiveRoomExit[lane];
+
+	if (movement.isArrived)
+	{
+		++cycle;
+		if (cycle > 100 && inst.canEnterToPoolLane[lane])
+		{
+			inst.canEnterToPoolLane[lane] = false;
+			std::cout << "Archive " << lane << "is now free" << std::endl;
+			inst.isArchiveOccupied[lane] = false;
+			movement.isArrived = false;
+			cycle = 0;
+			toPoolPosition = 0;
+			std::cout << "Robot " << mid << ": ToPoolLaneEvent" << std::endl;
+			state = state_toPoolLane;
+		}
+
+		return;
+	}
+
+	if (!movement.startedMovement)
+	{
+		movement.move(mNavigation, pos);
+	}
+}
+
+void PositionalRobot::toPoolLaneEvent()
+{
+	auto &inst = shared::instance();
+	std::lock_guard<std::mutex> lock(access);
+
+	if (movement.isArrived)
+	{
+		++toPoolPosition;
+		if (toPoolPosition == inst.poolDrivePoints[lane].size() - 1)
+		{
+			movement.isArrived = false;
+			std::cout << "Robot " << mid << ": ExitPoolEvent" << std::endl;
+			state = state_exitPoolLane;
+			return;
+		}
+	}
+
+	if (!movement.startedMovement)
+	{
+		movement.move(mNavigation, inst.poolDrivePoints[lane][toPoolPosition]);
+	}
+}
+
+void PositionalRobot::exitPoolLaneEvent()
+{
+	auto &inst = shared::instance();
+	std::lock_guard<std::mutex> lock(access);
+
+	if (!isAllowedToMoveInPool)
+	{
+		if (inst.movementInPool)
+		{
+			return;
+		}
+		inst.movementInPool = true;
+		isAllowedToMoveInPool = true;
+	}
+
+	if (movement.isArrived)
+	{
+		movement.isArrived = false;
+		std::cout << "Robot " << mid << ": ToStartingPositionEvent" << std::endl;
+		state = state_toStartingPositon;
+		inst.canEnterToPoolLane[lane] = true;
+		return;
+	}
+
+	if (!movement.startedMovement)
+	{
+		movement.move(mNavigation, inst.poolDrivePoints[lane].back());
+	}
+}
+
+void PositionalRobot::toStartingPositonEvent()
+{
+	auto &inst = shared::instance();
+	std::lock_guard<std::mutex> lock(access);
+
+	if (movement.isArrived)
+	{
+		movement.isArrived = false;
+		std::cout << "Robot " << mid << ": PoolEvent" << std::endl;
+		state = state_pool;
+		return;
+	}
+
+	if (!movement.startedMovement)
+	{
+		movement.move(mNavigation, inst.startingPositions[mid]);
+	}
 }
 
 void PositionalRobot::initializeComponents()
@@ -149,12 +276,7 @@ void PositionalRobot::initializeComponents()
 	mNorthStar = new RobotinoExtension::NorthStar(getComId());
 
 	mNavigation = new RobotinoExtension::Navigation(mDrive, mNorthStar);
-	mNavigation->setCallback(this);
-}
-
-void PositionalRobot::event()
-{
-	isArrived = true;
+	mNavigation->setCallback(&movement);
 }
 
 void PositionalRobot::destroyComponents()

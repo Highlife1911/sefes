@@ -6,20 +6,16 @@
 
 #include "shared.h"
 
-const int port = 12080;
-const std::string ip = "127.0.0.1:";
-
 int main()
 {
 	std::vector<std::thread> threads;
 	for (int i = 0; i < shared::numberOfRobots; ++i)
 	{
-		const std::string ipPort = ip + std::to_string(port + i);
-		threads.emplace_back([ipPort]()
+		threads.emplace_back([i]()
 		{
 			try
 			{
-				PositionalRobot	rob(ipPort);
+				PositionalRobot	rob(i);
 				rob.run();
 			}
 			catch (std::exception &e)
@@ -27,6 +23,11 @@ int main()
 				std::cout << e.what();
 			}
 		});
+	}
+
+	for (auto &thread : threads)
+	{
+		thread.join();
 	}
 
 	return EXIT_SUCCESS;
