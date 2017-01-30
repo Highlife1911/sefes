@@ -61,7 +61,7 @@ void PositionalRobot::run()
 			std::cout << "Unkown State: " << state << std::endl;
 		}
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
@@ -169,7 +169,7 @@ void PositionalRobot::waitingRoomEvent()
 	newWaitingRoomPosition = inst.waitingRooms[lane].position(mid);
 	if (newWaitingRoomPosition != waitingPosition)
 	{
-		movement.move(mNavigation, inst.waitingRooms[lane].realPosition(newWaitingRoomPosition));
+		movement.move(mNavigation, inst.waitingRooms[lane].realPosition(newWaitingRoomPosition), 0.2f);
 	}
 }
 

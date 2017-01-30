@@ -11,11 +11,11 @@ struct Movement : public Callback
 	bool isArrived = false;
 	bool startedMovement = false;
 
-	void move(RobotinoExtension::Navigation *navi, std::pair<float,float> pos)
+	void move(RobotinoExtension::Navigation *navi, std::pair<float,float> pos, float speed = 0.65f)
 	{
 		isArrived = false;
 		startedMovement = true;
-		navi->driveToPosition(RobotinoExtension::Position(pos.first, pos.second), 0.5f, -1.0f);
+		navi->driveToPosition(RobotinoExtension::Position(pos.first, pos.second), speed, -1.0f);
 	}
 
 	void event() override
