@@ -335,7 +335,7 @@ system Lane, Supervisor, Archivist, LaneEntry, Anteroom, Customer;</system>
 		<query>
 			<formula>E&lt;&gt; (Archivist(0).Anteroom imply Archivist(0).Archiv)
 			</formula>
-			<comment>
+			<comment>Man kommt vom Wartezimmer ins Archiv
 			</comment>
 		</query>
 		<query>
@@ -347,41 +347,143 @@ system Lane, Supervisor, Archivist, LaneEntry, Anteroom, Customer;</system>
 		<query>
 			<formula>A[] (counter_archivists &lt;= ROBOTS)
 			</formula>
-			<comment>
+			<comment>Der Counter an Archivists ist immer kleiner gleich Anzahl Roboter
 			</comment>
 		</query>
 		<query>
 			<formula>A[] ((book_counter*N) &lt;= (MAX_NUMBER_OF_BOOKS_PER_ROOM*N))
 			</formula>
-			<comment>
+			<comment>Der BookCounter ist immer kleiner gleich der gesamten Bücher
 			</comment>
 		</query>
 		<query>
 			<formula>E&lt;&gt; (LaneEntry(0).Pool imply LaneEntry(0).Lane_entered)
 			</formula>
-			<comment>
+			<comment>Man kommt vom Pool in Lane_entered
 			</comment>
 		</query>
 		<query>
 			<formula>E&lt;&gt; (Archivist(0).Lane imply Archivist(0).Anteroom)
 			</formula>
-			<comment>
+			<comment>Man kommt von LAne nach Anteroom
 			</comment>
 		</query>
 		<query>
 			<formula>E&lt;&gt; (Archivist(0).Pool imply Archivist(0).Anteroom)
 			</formula>
-			<comment>
+			<comment>Man kommt von Pool nach Anteroom
 			</comment>
 		</query>
 		<query>
 			<formula>E&lt;&gt; (Archivist(0).Archiv imply Archivist(0).Pool)
 			</formula>
-			<comment>
+			<comment>Man kommt vom Archiv in den Pool
 			</comment>
 		</query>
 		<query>
 			<formula>A[] (missing_books[0] &lt;= MAX_NUMBER_OF_BOOKS_PER_ROOM)
+			</formula>
+			<comment>Die Anzahl der missing Books ist immer kleiner gleich der maximalen Anzahl der Bücher eines zimmers
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Archivist(0).Anteroom
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Archivist(0).Archiv
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; LaneEntry(0).Pool
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; LaneEntry(0).Lane_approved
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; LaneEntry(0).Lane_reserved
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; LaneEntry(0).Lane_entered
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Supervisor(0).Waiting
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Supervisor(0).Ready
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Archivist(0).Customer
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Archivist(0).Pool
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Archivist(0).Exit
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Archivist(0).Lane
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Lane(0).Occupied
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Lane(0).Empty
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Anteroom(0).Anteroom_Counter
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Customer(0).Book_Loan_Step
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; Customer(0).Book_Loan
 			</formula>
 			<comment>
 			</comment>
