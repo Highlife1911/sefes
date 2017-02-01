@@ -24,6 +24,7 @@ chan leave_anteroom[N];
 bool can_enter_anteroom[N];
 int lowest_id[N];
 int heighest_id[N];
+int counter_archivists;
 
 // LANES
 const int M = 2; // lanes per archiv
@@ -52,14 +53,17 @@ typedef int[0,NUMBER_OF_CUSTOMERS-1] customer_t;
 chan return_book;
 chan borrow_book;
 chan get_book[NUMBER_OF_CUSTOMERS];
-int customer;</declaration>
+int customer;
+int book_counter;</declaration>
 	<template>
 		<name>Customer</name>
 		<parameter>const customer_t id</parameter>
 		<declaration>int book_counter = 0;</declaration>
 		<location id="id0" x="-102" y="68">
+			<name x="-85" y="59">Book_Loan_Step</name>
 		</location>
 		<location id="id1" x="-297" y="-8">
+			<name x="-289" y="-34">Book_Loan</name>
 		</location>
 		<init ref="id1"/>
 		<transition>
@@ -69,21 +73,21 @@ int customer;</declaration>
 			<label kind="synchronisation" x="-510" y="-68">return_book!</label>
 			<label kind="assignment" x="-510" y="-34">book_counter--</label>
 			<nail x="-518" y="-8"/>
-			<nail x="-518" y="-127"/>
-			<nail x="-297" y="-127"/>
+			<nail x="-518" y="-76"/>
+			<nail x="-297" y="-76"/>
 		</transition>
 		<transition>
 			<source ref="id0"/>
 			<target ref="id1"/>
-			<label kind="synchronisation" x="-280" y="68">get_book[id]?</label>
-			<label kind="assignment" x="-280" y="85">book_counter++</label>
+			<label kind="synchronisation" x="-289" y="68">get_book[id]?</label>
+			<label kind="assignment" x="-289" y="85">book_counter++</label>
 			<nail x="-297" y="68"/>
 		</transition>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id0"/>
-			<label kind="synchronisation" x="-195" y="-8">borrow_book!</label>
-			<label kind="assignment" x="-187" y="8">customer=id</label>
+			<label kind="synchronisation" x="-204" y="-8">borrow_book!</label>
+			<label kind="assignment" x="-204" y="8">customer=id</label>
 			<nail x="-102" y="-8"/>
 		</transition>
 	</template>
@@ -92,6 +96,7 @@ int customer;</declaration>
 		<parameter>const id_t id</parameter>
 		<declaration>int counter_archivists = 0;</declaration>
 		<location id="id2" x="-552" y="-255">
+			<name x="-535" y="-263">Anteroom_Counter</name>
 		</location>
 		<init ref="id2"/>
 		<transition>
@@ -136,10 +141,10 @@ int target_archiv = id / M;</declaration>
 		<transition>
 			<source ref="id4"/>
 			<target ref="id3"/>
-			<label kind="guard" x="0" y="68">time&gt;=travel_time &amp;&amp;
+			<label kind="guard" x="-17" y="68">time&gt;=travel_time &amp;&amp;
 is_archivist_in_lane[id]==true</label>
 			<label kind="synchronisation" x="-17" y="51">enter_anteroom[target_archiv]!</label>
-			<label kind="assignment" x="-59" y="102">can_enter_anteroom[target_archiv]=true,
+			<label kind="assignment" x="-17" y="102">can_enter_anteroom[target_archiv]=true,
 is_archivist_in_lane[id]=false</label>
 			<nail x="272" y="68"/>
 			<nail x="280" y="68"/>
@@ -163,7 +168,7 @@ is_archivist_in_lane[id]=false</label>
 		<declaration>clock time;
 int wait_id;</declaration>
 		<location id="id5" x="-314" y="-119">
-			<name x="-390" y="-128">Customer</name>
+			<name x="-399" y="-127">Customer</name>
 			<urgent/>
 		</location>
 		<location id="id6" x="-144" y="34">
@@ -185,19 +190,19 @@ int wait_id;</declaration>
 		<transition>
 			<source ref="id5"/>
 			<target ref="id7"/>
-			<label kind="synchronisation" x="-408" y="-221">get_book[target_customer[id]]!</label>
+			<label kind="synchronisation" x="-433" y="-212">get_book[target_customer[id]]!</label>
 		</transition>
 		<transition>
 			<source ref="id6"/>
 			<target ref="id5"/>
-			<label kind="guard" x="-416" y="-17">time&gt;=leave_archiv_time &amp;&amp;
+			<label kind="guard" x="-433" y="-17">time&gt;=leave_archiv_time &amp;&amp;
 target_customer[id]!=-1</label>
-			<label kind="synchronisation" x="-425" y="-34">leave_archiv[target_archiv[id]]!</label>
+			<label kind="synchronisation" x="-433" y="-34">leave_archiv[target_archiv[id]]!</label>
 		</transition>
 		<transition>
 			<source ref="id9"/>
 			<target ref="id6"/>
-			<label kind="guard" x="25" y="85">time&gt;=search_archiv_time</label>
+			<label kind="guard" x="25" y="76">time&gt;=search_archiv_time</label>
 			<label kind="assignment" x="25" y="42">is_archiv_occupied[target_archiv[id]]=false,
 time=0</label>
 		</transition>
@@ -211,10 +216,10 @@ target_customer[id]==-1</label>
 		<transition>
 			<source ref="id10"/>
 			<target ref="id9"/>
-			<label kind="guard" x="187" y="-178">is_archiv_occupied[target_archiv[id]]==false &amp;&amp; 
+			<label kind="guard" x="161" y="-178">is_archiv_occupied[target_archiv[id]]==false &amp;&amp; 
 wait_id==lowest_id[target_archiv[id]]</label>
-			<label kind="synchronisation" x="187" y="-195">leave_anteroom[target_archiv[id]]!</label>
-			<label kind="assignment" x="187" y="-144">is_archiv_occupied[target_archiv[id]]=true,
+			<label kind="synchronisation" x="161" y="-195">leave_anteroom[target_archiv[id]]!</label>
+			<label kind="assignment" x="161" y="-144">is_archiv_occupied[target_archiv[id]]=true,
 lowest_id[target_archiv[id]]=
 (lowest_id[target_archiv[id]]+1)%ROBOTS,
 time=0</label>
@@ -248,38 +253,38 @@ clock time;</declaration>
 		<location id="id12" x="-9" y="0">
 			<name x="-60" y="-8">Pool</name>
 		</location>
-		<location id="id13" x="229" y="0">
-			<name x="246" y="-8">Lane_approved</name>
+		<location id="id13" x="289" y="0">
+			<name x="306" y="-8">Lane_approved</name>
 		</location>
-		<location id="id14" x="229" y="144">
-			<name x="246" y="136">Lane_reserved</name>
+		<location id="id14" x="289" y="144">
+			<name x="306" y="136">Lane_reserved</name>
 		</location>
 		<init ref="id12"/>
 		<transition>
 			<source ref="id11"/>
 			<target ref="id12"/>
-			<label kind="synchronisation" x="-187" y="51">leave_archiv[internal/M]?</label>
+			<label kind="synchronisation" x="-187" y="59">leave_archiv[internal/M]?</label>
 		</transition>
 		<transition>
 			<source ref="id14"/>
 			<target ref="id11"/>
-			<label kind="guard" x="34" y="144">time&gt;=enter_lane_time</label>
-			<label kind="synchronisation" x="59" y="127">enter_lane[id]!</label>
-			<label kind="assignment" x="17" y="161">target_archiv[id]=internal/M,
+			<label kind="guard" x="25" y="144">time&gt;=enter_lane_time</label>
+			<label kind="synchronisation" x="25" y="127">enter_lane[id]!</label>
+			<label kind="assignment" x="25" y="161">target_archiv[id]=internal/M,
 target_lane[id]=internal,
 target_customer[id]=internal_customer</label>
 		</transition>
 		<transition>
 			<source ref="id13"/>
 			<target ref="id14"/>
-			<label kind="synchronisation" x="237" y="51">reserve_lane[internal]!</label>
-			<label kind="assignment" x="238" y="68">time=0</label>
+			<label kind="synchronisation" x="297" y="51">reserve_lane[internal]!</label>
+			<label kind="assignment" x="298" y="68">time=0</label>
 		</transition>
 		<transition>
 			<source ref="id12"/>
 			<target ref="id13"/>
-			<label kind="synchronisation" x="34" y="-25">approve_lane?</label>
-			<label kind="assignment" x="34" y="0">internal=drive_to,
+			<label kind="synchronisation" x="17" y="-25">approve_lane?</label>
+			<label kind="assignment" x="17" y="0">internal=drive_to,
 internal_customer=drive_to_customer</label>
 		</transition>
 	</template>
@@ -289,43 +294,98 @@ internal_customer=drive_to_customer</label>
 		<declaration>int take_lane = 0;
 int customer_id;</declaration>
 		<location id="id15" x="-289" y="-144">
-			<name x="-374" y="-161">Waiting</name>
+			<name x="-357" y="-144">Waiting</name>
 		</location>
 		<location id="id16" x="-289" y="-289">
-			<name x="-348" y="-297">Ready</name>
+			<name x="-348" y="-314">Ready</name>
 		</location>
 		<init ref="id15"/>
 		<transition>
 			<source ref="id16"/>
 			<target ref="id15"/>
-			<label kind="synchronisation" x="-161" y="-170">approve_lane!</label>
-			<label kind="assignment" x="-212" y="-144">drive_to=id*M+take_lane,
+			<label kind="synchronisation" x="-272" y="-306">approve_lane!</label>
+			<label kind="assignment" x="-272" y="-289">drive_to=id*M+take_lane,
 drive_to_customer=customer_id</label>
-			<nail x="-59" y="-289"/>
-			<nail x="-59" y="-144"/>
+			<nail x="-42" y="-289"/>
+			<nail x="-42" y="-144"/>
 		</transition>
 		<transition>
 			<source ref="id15"/>
 			<target ref="id16"/>
-			<label kind="guard" x="-255" y="-272">missing_books[id]&gt;0</label>
-			<label kind="synchronisation" x="-246" y="-246">return_book?</label>
-			<label kind="assignment" x="-246" y="-229">customer_id=-1,
+			<label kind="guard" x="-442" y="-238">missing_books[id]&gt;0</label>
+			<label kind="synchronisation" x="-442" y="-255">return_book?</label>
+			<label kind="assignment" x="-442" y="-221">customer_id=-1,
 missing_books[id]--</label>
-			<nail x="-254" y="-221"/>
+			<nail x="-289" y="-221"/>
 		</transition>
 		<transition>
 			<source ref="id15"/>
 			<target ref="id16"/>
-			<label kind="guard" x="-714" y="-263">missing_books[id]&lt;MAX_NUMBER_OF_BOOKS_PER_ROOM</label>
-			<label kind="synchronisation" x="-416" y="-246">borrow_book?</label>
-			<label kind="assignment" x="-459" y="-229">customer_id=customer,
+			<label kind="guard" x="-731" y="-289">missing_books[id]&lt;MAX_NUMBER_OF_BOOKS_PER_ROOM</label>
+			<label kind="synchronisation" x="-731" y="-306">borrow_book?</label>
+			<label kind="assignment" x="-731" y="-272">customer_id=customer,
 missing_books[id]++</label>
-			<nail x="-323" y="-221"/>
+			<nail x="-739" y="-144"/>
+			<nail x="-739" y="-289"/>
 		</transition>
 	</template>
 	<system>// List one or more processes to be composed into a system.
 system Lane, Supervisor, Archivist, LaneEntry, Anteroom, Customer;</system>
 	<queries>
+		<query>
+			<formula>E&lt;&gt; (Archivist(0).Anteroom imply Archivist(0).Archiv)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A&lt;&gt; (Lane(0).Occupied imply Lane(0).Empty)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] (counter_archivists &lt;= ROBOTS)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] ((book_counter*N) &lt;= (MAX_NUMBER_OF_BOOKS_PER_ROOM*N))
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; (LaneEntry(0).Pool imply LaneEntry(0).Lane_entered)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; (Archivist(0).Lane imply Archivist(0).Anteroom)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; (Archivist(0).Pool imply Archivist(0).Anteroom)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; (Archivist(0).Archiv imply Archivist(0).Pool)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>A[] (missing_books[0] &lt;= MAX_NUMBER_OF_BOOKS_PER_ROOM)
+			</formula>
+			<comment>
+			</comment>
+		</query>
 		<query>
 			<formula>A[] not deadlock
 			</formula>
