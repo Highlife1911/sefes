@@ -69,7 +69,6 @@ void PositionalRobot::poolEvent()
 {
 	access.lock();
 	auto &inst = shared::instance();
-	//std::lock_guard<std::mutex> lock(access);
 
 	if (!isAllowedToMoveInPool)
 	{
@@ -83,18 +82,16 @@ void PositionalRobot::poolEvent()
 	}
 
 	int i = rand() % shared::numberOfLanes;
-	//for (int i = 0; i < shared::numberOfLanes; ++i)
-	//{
-		if (inst.canEnterLane[i])
-		{
-			inst.canEnterLane[i] = false;
-			std::cout << "Robot " << mid << ": PoolToLaneEvent" << std::endl;
-			state = state_poolToLane;
-			lane = i;
-			access.unlock();
-			return;
-		}
-	//}
+	if (inst.canEnterLane[i])
+	{
+		inst.canEnterLane[i] = false;
+		std::cout << "Robot " << mid << ": PoolToLaneEvent" << std::endl;
+		state = state_poolToLane;
+		lane = i;
+		access.unlock();
+		return;
+	}
+
 	access.unlock();
 }
 
@@ -149,7 +146,7 @@ void PositionalRobot::waitingRoomEvent()
 {
 	auto &inst = shared::instance();
 	std::lock_guard<std::mutex> lock(access);
-
+	
 	if (movement.isArrived)
 	{
 		movement.isArrived = false;
