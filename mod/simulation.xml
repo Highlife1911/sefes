@@ -27,7 +27,7 @@ int heighest_id[N];
 int counter_archivists[N];
 
 // LANES
-const int M = 2; // lanes per archiv
+const int M = 1; // lanes per archiv
 const int total_lanes = M*N;
 typedef int[0,(M*N)-1] laneid_t;
 chan reserve_lane[M*N], leave_lane[N];
@@ -48,7 +48,7 @@ const int MAX_NUMBER_OF_BOOKS_PER_ROOM = 5;
 int missing_books[N];
 
 // CUSTOMERS
-const int NUMBER_OF_CUSTOMERS = 3;
+const int NUMBER_OF_CUSTOMERS = 2;
 typedef int[0,NUMBER_OF_CUSTOMERS-1] customer_t;
 chan return_book;
 chan borrow_book;
@@ -58,6 +58,7 @@ int book_counter[NUMBER_OF_CUSTOMERS];</declaration>
 	<template>
 		<name>Customer</name>
 		<parameter>const customer_t id</parameter>
+		<declaration>//int book_counter = 0;</declaration>
 		<location id="id0" x="-102" y="68">
 			<name x="-85" y="59">Book_Loan_Step</name>
 		</location>
@@ -93,6 +94,7 @@ int book_counter[NUMBER_OF_CUSTOMERS];</declaration>
 	<template>
 		<name>Anteroom</name>
 		<parameter>const id_t id</parameter>
+		<declaration>//int counter_archivists = 0;</declaration>
 		<location id="id2" x="-552" y="-255">
 			<name x="-535" y="-263">Anteroom_Counter</name>
 		</location>
@@ -331,27 +333,36 @@ missing_books[id]++</label>
 system Lane, Supervisor, Archivist, LaneEntry, Anteroom, Customer;</system>
 	<queries>
 		<query>
-			<formula>E&lt;&gt; (Archivist(0).Anteroom imply Archivist(0).Archiv)
+			<formula>A&lt;&gt; (Archivist(0).Anteroom imply Archivist(0).Archiv)
 			</formula>
-			<comment>Man kommt vom Wartezimmer ins Archiv
+			<comment>Man kommt immer vom Wartezimmer ins Archiv
 			</comment>
 		</query>
 		<query>
 			<formula>A&lt;&gt; (Lane(0).Occupied imply Lane(0).Empty)
 			</formula>
-			<comment>
+			<comment>Wenn die Lane belegt ist wird sie auch wieder frei
 			</comment>
 		</query>
 		<query>
-			<formula>A[] (counter_archivists[0] &lt;= ROBOTS)
+			<formula>E[] ( (counter_archivists[0] +  counter_archivists[1])  &gt; ROBOTS)
 			</formula>
-			<comment>Der Counter an Archivists ist immer kleiner gleich Anzahl Roboter
+			<comment>NEGATIV-ABFRAGE -&gt;
+Es gilt nie dass mehr Robots im Wartezimmer sind als es Roboter insgesamt gibt
 			</comment>
 		</query>
 		<query>
-			<formula>A[] (book_counter[0] &lt;= (MAX_NUMBER_OF_BOOKS_PER_ROOM*N))
+			<formula>E[] ( (book_counter[0] + book_counter[1] + book_counter[2]) &gt; (MAX_NUMBER_OF_BOOKS_PER_ROOM*N))
 			</formula>
-			<comment>Der BookCounter ist immer kleiner gleich der gesamten Bücher
+			<comment>NEGATIV-ABFRAGE -&gt;
+Es gilt nicht dass mehr Bücher ausgeliehen wurden als es insgesamt gibt
+			</comment>
+		</query>
+		<query>
+			<formula>E[] missing_books[0] + missing_books[1]  &gt; MAX_NUMBER_OF_BOOKS_PER_ROOM*N
+			</formula>
+			<comment>NEGATIV-ABFRGAE-&gt;
+Es gilt nicht dass Missing Books größer ist als die Anzahl an gemeinsam ausgeliehenen Büchern.
 			</comment>
 		</query>
 		<query>
@@ -363,7 +374,7 @@ system Lane, Supervisor, Archivist, LaneEntry, Anteroom, Customer;</system>
 		<query>
 			<formula>E&lt;&gt; (Archivist(0).Lane imply Archivist(0).Anteroom)
 			</formula>
-			<comment>Man kommt von LAne nach Anteroom
+			<comment>Man kommt von Lane nach Anteroom
 			</comment>
 		</query>
 		<query>
