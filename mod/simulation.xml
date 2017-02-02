@@ -24,7 +24,7 @@ chan leave_anteroom[N];
 bool can_enter_anteroom[N];
 int lowest_id[N];
 int heighest_id[N];
-int counter_archivists;
+int counter_archivists[N];
 
 // LANES
 const int M = 2; // lanes per archiv
@@ -54,11 +54,10 @@ chan return_book;
 chan borrow_book;
 chan get_book[NUMBER_OF_CUSTOMERS];
 int customer;
-int book_counter;</declaration>
+int book_counter[NUMBER_OF_CUSTOMERS];</declaration>
 	<template>
 		<name>Customer</name>
 		<parameter>const customer_t id</parameter>
-		<declaration>int book_counter = 0;</declaration>
 		<location id="id0" x="-102" y="68">
 			<name x="-85" y="59">Book_Loan_Step</name>
 		</location>
@@ -69,9 +68,9 @@ int book_counter;</declaration>
 		<transition>
 			<source ref="id1"/>
 			<target ref="id1"/>
-			<label kind="guard" x="-510" y="-51">book_counter &gt; 0</label>
+			<label kind="guard" x="-510" y="-51">book_counter[id] &gt; 0</label>
 			<label kind="synchronisation" x="-510" y="-68">return_book!</label>
-			<label kind="assignment" x="-510" y="-34">book_counter--</label>
+			<label kind="assignment" x="-510" y="-34">book_counter[id]--</label>
 			<nail x="-518" y="-8"/>
 			<nail x="-518" y="-76"/>
 			<nail x="-297" y="-76"/>
@@ -80,7 +79,7 @@ int book_counter;</declaration>
 			<source ref="id0"/>
 			<target ref="id1"/>
 			<label kind="synchronisation" x="-289" y="68">get_book[id]?</label>
-			<label kind="assignment" x="-289" y="85">book_counter++</label>
+			<label kind="assignment" x="-289" y="85">book_counter[id]++</label>
 			<nail x="-297" y="68"/>
 		</transition>
 		<transition>
@@ -94,7 +93,6 @@ int book_counter;</declaration>
 	<template>
 		<name>Anteroom</name>
 		<parameter>const id_t id</parameter>
-		<declaration>int counter_archivists = 0;</declaration>
 		<location id="id2" x="-552" y="-255">
 			<name x="-535" y="-263">Anteroom_Counter</name>
 		</location>
@@ -103,7 +101,7 @@ int book_counter;</declaration>
 			<source ref="id2"/>
 			<target ref="id2"/>
 			<label kind="synchronisation" x="-620" y="-229">leave_anteroom[id]?</label>
-			<label kind="assignment" x="-620" y="-212">counter_archivists--</label>
+			<label kind="assignment" x="-620" y="-212">counter_archivists[id]--</label>
 			<nail x="-535" y="-238"/>
 			<nail x="-467" y="-238"/>
 			<nail x="-467" y="-212"/>
@@ -115,7 +113,7 @@ int book_counter;</declaration>
 			<source ref="id2"/>
 			<target ref="id2"/>
 			<label kind="synchronisation" x="-629" y="-314">enter_anteroom[id]?</label>
-			<label kind="assignment" x="-629" y="-297">counter_archivists++</label>
+			<label kind="assignment" x="-629" y="-297">counter_archivists[id]++</label>
 			<nail x="-569" y="-272"/>
 			<nail x="-646" y="-272"/>
 			<nail x="-646" y="-297"/>
@@ -345,13 +343,13 @@ system Lane, Supervisor, Archivist, LaneEntry, Anteroom, Customer;</system>
 			</comment>
 		</query>
 		<query>
-			<formula>A[] (counter_archivists &lt;= ROBOTS)
+			<formula>A[] (counter_archivists[0] &lt;= ROBOTS)
 			</formula>
 			<comment>Der Counter an Archivists ist immer kleiner gleich Anzahl Roboter
 			</comment>
 		</query>
 		<query>
-			<formula>A[] ((book_counter*N) &lt;= (MAX_NUMBER_OF_BOOKS_PER_ROOM*N))
+			<formula>A[] (book_counter[0] &lt;= (MAX_NUMBER_OF_BOOKS_PER_ROOM*N))
 			</formula>
 			<comment>Der BookCounter ist immer kleiner gleich der gesamten Bücher
 			</comment>
